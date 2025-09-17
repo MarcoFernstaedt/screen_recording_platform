@@ -11,7 +11,7 @@ const Navbar = () => {
     const router = useRouter();
 
     return (
-        <header className="navbar">
+        <header className="navbar bg-black">
             <nav>
                 <Link href="/">
                     <Image
@@ -20,7 +20,7 @@ const Navbar = () => {
                         width={32}
                         height={32}
                     />
-                    <h1>SnapCast</h1>
+                    <h1 className='text-white'>SnapCast</h1>
                 </Link>
 
                 {user && (

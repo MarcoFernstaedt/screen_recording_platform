@@ -4,30 +4,30 @@ import "./globals.css";
 import { satoshi } from "../fonts/font";
 
 const geistKarla = Karla({
-  variable: "--font-geist-karla",
-  subsets: ["latin"],
+    variable: "--font-geist-karla",
+    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "SnapCast",
-  description: "A Screen Sharing App",
-  icons: {
-    icon: "/assets/icons/logo.svg",
-  },
+    title: "SnapCast",
+    description: "A Screen Sharing App",
+    icons: {
+        icon: "/assets/icons/logo.svg",
+    },
 };
 
 export default function Layout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistKarla.variable} ${satoshi.variable} font-karla antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <body
+                className={`${geistKarla.variable} ${satoshi.variable} font-karla antialiased`}
+            >
+                {children}
+            </body>
+        </html>
+    );
 }

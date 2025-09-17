@@ -1,10 +1,12 @@
+import Header from '@/components/Header'
 import React from 'react'
 
 const Page = () => {
   return (
-    <h1 className='text-2xl underline'>
-      Welcome to Loom Clone
-    </h1>
+    <main className='wrapper page'>
+      <Header title='All Videos' subHeader='Public Library' />
+      <h1 className='text-2xl underline'>Welcome to Loom Clone</h1>
+    </main>
   )
 }
 

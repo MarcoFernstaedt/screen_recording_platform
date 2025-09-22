@@ -8,10 +8,10 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema: schema }),
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_IG,
+      clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
-  },
-  pluggins: [nextCookies()],
+      },
+  plugins: [nextCookies()],
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
 });

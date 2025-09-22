@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Marco-Fernstaedt-s-workspace-sa0143.us-east-1.xata.sh/db/SnapCast",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}

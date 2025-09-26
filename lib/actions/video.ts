@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { apiFetch, getEnv, withErrorHandling } from "../utils";
 import { BUNNY } from "@/constants";
+import { db } from "@/drizzle/db";
+import { revalidatePath } from "next/cache";
 
 const VIDEO_STREAM_BASE_URL = BUNNY.STREAM_BASE_URL;
 const THUMBNAIL_STORAGE_BASE_URL = BUNNY.STORAGE_BASE_URL
@@ -19,6 +21,10 @@ const getSessionUserId = async (): Promise<string> => {
   if (!session) throw new Error('Unathenticated');
   return session.user.id
 };
+
+const revalidatePaths = (paths: string[]) => {
+    paths.forEach((path) => revalidatePath(path))
+}
 
 // Server actions
 export const getVideoUploadUrl = withErrorHandling(async () => {
@@ -56,3 +62,30 @@ export const getThumbnailUploadUrl - withErrorHandling(async (videoId: string) =
     }
 })
 
+export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDetails) => {
+    const userId = await getSessionUserId()
+
+    await apiFetch(
+        `${VIDEO_STREAM_BAE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails}`,
+        {
+            method: 'POST',
+            bunnyType: 'stream',
+            body: {
+                title: videoDetails.title,
+                description: videoDetails.description,
+            }
+        }
+    )
+
+    await db.insert(videos).values({
+        ...videoDetails,
+        videoUrl: `${BUNNY.EMBED_URL}/${BUNNY_LIBRARY_ID}/${videoDetails.videoId}`,
+        userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    })
+
+    revalidatePaths(['/'])
+
+    return {videoId: videoDetails.videoId}
+})

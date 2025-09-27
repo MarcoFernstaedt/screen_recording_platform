@@ -11,7 +11,7 @@ declare interface User {
 type VideoFormValues = {
   title: string;
   description: string;
-  tags: string;
+  // tags: string;
   visibility: "public" | "private";
 };
 

@@ -5,7 +5,7 @@ import { MAX_THUMBNAIL_SIZE, MAX_VIDEO_SIZE } from "@/constants";
 import { getThumbnailUploadUrl, getVideoUploadUrl, saveVideoDetails } from "@/lib/actions/video";
 import { useFileInput } from "@/lib/hooks/useFileInput";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 
 const uploadFileToBunny = (
     file: File,
@@ -26,13 +26,13 @@ const uploadFileToBunny = (
 
 const Page = () => {
     const router = useRouter()
-    const [error, setError] = React.useState<string | null>(null); // single state
-    const [formData, setFormData] = React.useState({
+    const [error, setError] = useState<string | null>(null); // single state
+    const [formData, setFormData] = useState({
         title: "",
         description: "",
         visibility: "public",
     });
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [videoDuration, setVideoDuration] = useState(0);
 
     const video = useFileInput(MAX_VIDEO_SIZE);
@@ -44,7 +44,7 @@ const Page = () => {
         }
     }, [video.duration])
 
-    const handleInputChange = (e: React.ChangeEvent<FormEl>) => {
+    const handleInputChange = (e: React.ChangeEvent<FormEvent>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };

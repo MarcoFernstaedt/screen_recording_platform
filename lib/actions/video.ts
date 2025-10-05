@@ -66,7 +66,7 @@ export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDeta
     const userId = await getSessionUserId()
 
     await apiFetch(
-        `${VIDEO_STREAM_BAE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails}`,
+        `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails}`,
         {
             method: 'POST',
             bunnyType: 'stream',

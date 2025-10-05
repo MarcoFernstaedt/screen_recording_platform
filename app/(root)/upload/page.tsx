@@ -91,9 +91,9 @@ const Page = () => {
 
             await saveVideoDetails(
                 videoId,
-                thumbnailUrl: thumbnailCdnUrl,
+                thumbnailCdnUrl,
                 ...formData,
-                duration: videoDuration
+                videoDuration
             )
 
             router.push('/')

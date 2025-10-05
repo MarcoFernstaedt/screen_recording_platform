@@ -29,25 +29,21 @@ const revalidatePaths = (paths: string[]) => {
 // Server actions
 export const getVideoUploadUrl = withErrorHandling(async () => {
   await getSessionUserId();
-
   const videoResponse = await apiFetch<BunnyVideoResponse>(
     `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos`,
     {
-        method: 'POST',
-        bunnyType: 'string',
-        body: {
-            title: 'Temporary Title', collectionId:''
-        }        
+      method: "POST",
+      bunnyType: "stream",
+      body: { title: "Temp Title", collectionId: "" },
     }
-  )
+  );
 
-  const uploadUrl = `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoResponse.guid}/`
-
+  const uploadUrl = `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoResponse.guid}`;
   return {
     videoId: videoResponse.guid,
     uploadUrl,
     accessKey: ACCESS_KEYS.streamAccessKey,
-  }
+  };
 });
 
 export const getThumbnailUploadUrl = withErrorHandling(async (videoId: string) => {

@@ -49,35 +49,37 @@ const Page = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
         setIsSubmitting(true);
-        setError(null);
+
         try {
             if (!video.file || !thumbnail.file) {
-                setError("Please upload both video and thumbnail");
+                setError("Please upload video and thumbnail files.");
                 return;
             }
-            if (!formData.title || !formData.description || !formData.visibility) {
-                setError("Please fill in all required fields");
+
+            if (!formData.title || !formData.description) {
+                setError("Please fill in all required fields.");
                 return;
             }
 
             const {
                 videoId,
                 uploadUrl: videoUploadUrl,
-                accesskey: videoAccessKey,
+                accessKey: videoAccessKey,
             } = await getVideoUploadUrl();
 
-            if (!getVideoUploadUrl || !videoAccessKey)
+            if (!videoUploadUrl || !videoAccessKey)
                 throw new Error("Failed to get video upload credentials");
 
             await uploadFileToBunny(video.file, videoUploadUrl, videoAccessKey);
 
             const {
                 uploadUrl: thumbnailUploadUrl,
-                accesskey: thumbnailAccessKey,
                 cdnUrl: thumbnailCdnUrl,
+                accessKey: thumbnailAccessKey,
             } = await getThumbnailUploadUrl(videoId);
 
             if (!thumbnailUploadUrl || !thumbnailCdnUrl || !thumbnailAccessKey)
@@ -89,17 +91,16 @@ const Page = () => {
                 thumbnailAccessKey
             );
 
-            await saveVideoDetails(
+            await saveVideoDetails({
                 videoId,
-                thumbnailCdnUrl,
+                thumbnailUrl: thumbnailCdnUrl,
                 ...formData,
-                videoDuration
-            )
+                duration: videoDuration,
+            });
 
-            router.push('/')
-        } catch (err) {
-            console.error("Error submitting form:", err);
-            setError("Upload failed");
+            router.push(`/video/${videoId}`);
+        } catch (error) {
+            console.error("Error submitting form:", error);
         } finally {
             setIsSubmitting(false);
         }

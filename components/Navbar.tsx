@@ -34,9 +34,7 @@ const Navbar = () => {
                                 height={36}
                             />
                         </button>
-                        <button className="cursor-pointer">
-                            <Image className="rotate-180" src='assets/icons/logout.svg' alt='logout' width={24} height={24} />
-                        </button>
+                        <LogoutButton />
                     </figure>
                 )}
             </nav>

@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "./lib/auth";
 import { headers } from "next/headers";
-import aj from "./lib/arcjet";
-import { createMiddleware, detectBot, shield } from "@arcjet/next";
+import { auth } from "@/lib/auth";
+import aj, { createMiddleware, detectBot, shield } from "./lib/arcjet";
 
-export const middleware = async (
-  request: NextRequest,
-  response: NextResponse
-) => {
+export async function middleware(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -17,14 +13,17 @@ export const middleware = async (
   }
 
   return NextResponse.next();
-};
-
+}
 const validate = aj
-  .withRule(shield({ mode: "LIVE" }))
+  .withRule(
+    shield({
+      mode: "LIVE",
+    })
+  )
   .withRule(
     detectBot({
       mode: "LIVE",
-      allow: ["CATEGORY:SEARCH_ENGINE", "GOOGLE_CRAWLER"],
+      allow: ["CATEGORY:SEARCH_ENGINE", "G00G1E_CRAWLER"], // allow other bots if you want to.
     })
   );
 
@@ -33,3 +32,5 @@ export default createMiddleware(validate);
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sign-in|assets).*)"],
 };
+
+// ⨯ [TypeError: Body is unusable: Body has already been read]

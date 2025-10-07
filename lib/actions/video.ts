@@ -87,8 +87,12 @@ export const getVideoUploadUrl = withErrorHandling(async () => {
 
 export const getThumbnailUploadUrl = withErrorHandling(async (videoId: string) => {
   const fileName = `${Date.now()}-${videoId}-thumbnail`;
-  const uploadUrl = `${THUMBNAIL_STORAGE_BASE_URL}/thumbnails/${fileName}`;
-  const cdnUrl = `${THUMBNAIL_CDN_URL}/thumbnails/${fileName}`;
+
+  // Include "main" in both URLs
+  const uploadUrl = `${THUMBNAIL_STORAGE_BASE_URL}/main/thumbnails/${fileName}`;
+  const cdnUrl = `${THUMBNAIL_CDN_URL}/main/thumbnails/${fileName}`;
+
+  console.log("Generated thumbnail URLs:", { uploadUrl, cdnUrl });
 
   return {
     uploadUrl,
@@ -97,66 +101,72 @@ export const getThumbnailUploadUrl = withErrorHandling(async (videoId: string) =
   };
 });
 
-export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDetails) => {
-  const userId = await getSessionUserId();
-  await validateWithArcjet(userId);
-
-  await apiFetch(
-    `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails.videoId}`,
-    {
-      method: "POST",
-      bunnyType: "stream",
-      body: {
-        title: videoDetails.title,
-        description: videoDetails.description,
-      },
-    }
-  );
-
-  await db.insert(videos).values({
-    ...videoDetails,
-    videoUrl: `${BUNNY.EMBED_URL}/${BUNNY_LIBRARY_ID}/${videoDetails.videoId}`,
-    userId,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  revalidatePaths(["/"]);
-
-  return { videoId: videoDetails.videoId };
-});
-
-export const getAllVideos = withErrorHandling(
-  async (
-    searchQuery: string = "",
-    sortFilter?: string,
-    pageNumber: number = 1,
-    pageSize: number = 8
-  ) => {
-    const session = await auth.api.getSession({ headers: await headers() });
-    const currentUserId = session?.user.id ?? "";
-
-    const canSeeTheVideos = or(
-      eq(videos.visibility, "public"),
-      eq(videos.userId, currentUserId)
+export const saveVideoDetails = withErrorHandling(
+  async (videoDetails: VideoDetails) => {
+    const userId = await getSessionUserId();
+    await validateWithArcjet(userId);
+    await apiFetch(
+      `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails.videoId}`,
+      {
+        method: "POST",
+        bunnyType: "stream",
+        body: {
+          title: videoDetails.title,
+          description: videoDetails.description,
+        },
+      }
     );
 
-    const whereCondition = searchQuery.trim()
-      ? and(canSeeTheVideos, doesTitleMatch(videos, searchQuery))
-      : canSeeTheVideos;
+    const now = new Date();
+    await db.insert(videos).values({
+      ...videoDetails,
+      videoUrl: `${BUNNY.EMBED_URL}/${BUNNY_LIBRARY_ID}/${videoDetails.videoId}`,
+      userId,
+      createdAt: now,
+      updatedAt: now,
+    });
 
+    revalidatePaths(["/"]);
+    return { videoId: videoDetails.videoId };
+  }
+);
+
+export const getAllVideos = withErrorHandling(async (
+  searchQuery: string = '',
+  sortFilter?: string,
+  pageNumber: number = 1,
+  pageSize: number = 8,
+) => {
+  const session = await auth.api.getSession({ headers: await headers() })
+  const currentUserId = session?.user.id;
+
+  const canSeeTheVideos = or(
+      eq(videos.visibility, 'public'),
+      eq(videos.userId, currentUserId!),
+  );
+
+  const whereCondition = searchQuery.trim()
+      ? and(
+          canSeeTheVideos,
+          doesTitleMatch(videos, searchQuery),
+      )
+      : canSeeTheVideos
+
+    // Count total for pagination
     const [{ totalCount }] = await db
       .select({ totalCount: sql<number>`count(*)` })
       .from(videos)
       .where(whereCondition);
-
     const totalVideos = Number(totalCount || 0);
     const totalPages = Math.ceil(totalVideos / pageSize);
 
+    // Fetch paginated, sorted results
     const videoRecords = await buildVideoWithUserQuery()
       .where(whereCondition)
       .orderBy(
-        sortFilter ? getOrderByClause(sortFilter) : sql`${videos.createdAt} DESC`
+        sortFilter
+          ? getOrderByClause(sortFilter)
+          : sql`${videos.createdAt} DESC`
       )
       .limit(pageSize)
       .offset((pageNumber - 1) * pageSize);

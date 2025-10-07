@@ -1,31 +1,23 @@
 import type { Metadata } from "next";
 import { Karla } from "next/font/google";
 import "./globals.css";
-import { satoshi } from "../fonts/font";
+import { satoshi } from "../fonts/font"; // ensure this is a next/font (local) export with `.variable`
 
-const geistKarla = Karla({
-    variable: "--font-geist-karla",
+const karla = Karla({
+    variable: "--font-karla",
     subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
     title: "SnapCast",
     description: "A Screen Sharing App",
-    icons: {
-        icon: "/assets/icons/logo.svg",
-    },
+    icons: { icon: "/assets/icons/logo.svg" },
 };
 
-export default function Layout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
-            <body
-                className={`${geistKarla.variable} ${satoshi.variable} font-karla antialiased`}
-            >
+        <html lang="en" suppressHydrationWarning>
+            <body className={`${karla.variable} ${satoshi.variable} antialiased`}>
                 {children}
             </body>
         </html>
